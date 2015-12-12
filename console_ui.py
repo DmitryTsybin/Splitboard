@@ -2,6 +2,8 @@ from models import Person
 from models import Event
 from models import EventsGroup
 from models import extend_event
+from models import combine_events
+from models import combine_payments
 
 
 class FileReader(object):
@@ -41,21 +43,22 @@ sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (masha, 79
 # sheregesh.add_person(test_user)
 # sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (test_user, 790)]))
 
-
-sheregesh.events = map(extend_event, sheregesh.events)
-sheregesh_results = sheregesh.calculate_results()
+sheregesh_results = reduce(combine_events, sheregesh.events, Event([], []))
 
 
-print "Total amount: %.2f" % sheregesh_results['total_amount']
+#print "Total amount: %.2f" % sheregesh_results['total_amount']
+print "Total amount payed: %.2f" % sum(map(lambda(x): x[1], sheregesh_results.pays))
+print "Total amount spent: %.2f" % sum(map(lambda(x): x[1], sheregesh_results.share))
+
 
 print "\nPayments:"
-for payment in sheregesh_results['payments']:
-    print "%s: %.2f" % (payment.name, sheregesh_results['payments'][payment])
+for payment in sheregesh_results.pays:
+    print "%s: %.2f" % (payment[0].name, payment[1])
 
 print "\nCredits:"
-for credit in sheregesh_results['credits']:
-    print "%s: %.2f" % (credit.name, sheregesh_results['credits'][credit])
+for credit in sheregesh_results.share:
+    print "%s: %.2f" % (credit[0].name, credit[1])
 
 print "\nTotal results:"
-for result in sheregesh_results['results']:
-    print "%s: %.2f" % (result.name, sheregesh_results['results'][result])
+for result in combine_payments(sheregesh_results.pays, sheregesh_results.share):
+    print "%s: %.2f" % (result[0].name, result[1])
