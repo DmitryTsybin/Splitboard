@@ -8,7 +8,7 @@ def hello_world():
     return 'Hello World!'
 
 
-class Event()
+class Event(gir)
 
 
 
