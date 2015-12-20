@@ -37,17 +37,17 @@ def report(event_group):
 
     print
     print "************ Results for %s ************" % event_group.name
-    print "Total amount payed: %.2f" % sum(map(lambda(x): x[1], results.pays))
-    print "Total amount spent: %.2f" % sum(map(lambda(x): x[1], results.share))
+    print "Total amount payed: %.2f" % sum(map(lambda(x): x[1], results.payments))
+    print "Total amount spent: %.2f" % sum(map(lambda(x): x[1], results.shares))
 
     print "\nPayments:"
-    print_table(results.pays)
+    print_table(results.payments)
 
     print "\nCredits:"
-    print_table(results.share)
+    print_table(results.shares)
 
 
-    balances = combine_payments(results.pays, results.share)
+    balances = combine_payments(results.payments, results.shares)
     print "\nTotal results:"
     print_table(balances)
 

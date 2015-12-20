@@ -12,14 +12,14 @@ class Person(object):
 
 
 class Event(object):
-    def __init__(self, pays, share, description = ''):
+    def __init__(self, payments, shares, description = ''):
         '''
-        :param pays: list of tuples [(person, amount)]
-        :param share: list of tuples [(person, amount)]
+        :param payments: list of tuples [(person, amount)]
+        :param shares: list of tuples [(person, amount)]
         :param description: string, description of this event
         '''
-        self.pays = pays
-        self.share = share
+        self.payments = payments
+        self.shares = shares
         self.description = description
 
 
@@ -41,22 +41,22 @@ def extend_event(event):
     :param event: event in relaxed form
     :return: event in normal form: ( [(payer, amount), ... ], [(consumer, amount), ...] )
     '''
-    if len(event.share) == 0:
+    if len(event.shares) == 0:
         return event
 
-    total_payment = sum(map(second, event.pays))
+    total_payment = sum(map(second, event.payments))
 
-    if type(event.share[0]) == Person:
-        f  = lambda(x): (x, -float(total_payment) / len(event.share))
-    elif type(event.share[0]) == tuple:
-        if 1 == sum(map(second, event.share)):
+    if type(event.shares[0]) == Person:
+        f  = lambda(x): (x, -float(total_payment) / len(event.shares))
+    elif type(event.shares[0]) == tuple:
+        if 1 == sum(map(second, event.shares)):
             f = lambda(x): (x[0], -total_payment * x[1])
         else:
             f = lambda(x): (x[0], -x[1])
     else:
-        print "something went wrong. event.share[0]: %r" % event.share[0]
+        print "something went wrong. event.shares[0]: %r" % event.shares[0]
 
-    return Event(event.pays, map(f, event.share), event.description)
+    return Event(event.payments, map(f, event.shares), event.description)
 
 
 def group_by(p, l):
@@ -93,4 +93,4 @@ def combine_payments(l1, l2, p = first):
 
 def combine_events(event1, event2):
     event2 = extend_event(event2)
-    return Event(combine_payments(event1.pays, event2.pays), combine_payments(event1.share, event2.share))
+    return Event(combine_payments(event1.payments, event2.payments), combine_payments(event1.shares, event2.shares))
