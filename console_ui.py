@@ -1,48 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from models import Person
-from models import Event
-from models import EventsGroup
-from models import combine_events
-from models import combine_payments, group_by, second
+from models import Person, Event, EventsGroup
+from models import combine_payments, combine_event_groups, total, who_pay
+from models import calc_transactions
 
 
 class FileReader(object):
     pass
-
-
-def total(event_group):
-    '''
-    :param event_group:
-    :return: combined event from all events from event_group
-    '''
-    return reduce(combine_events, event_group.events, Event([], []))
-
-
-def combine_event_groups(group1, group2):
-    print group1.persons + group2.persons
-    print group1.events + group2.events
-    return EventsGroup(group1.persons + group2.persons, group1.events + group2.events, "%s and %s" % (group1.name, group2.name))
-
-
-def signum(x):
-        if x < 0:
-            return -1
-        else:
-            return 1
-
-
-def compose(f, g):
-    return lambda(x): f(g(x))
-
-
-def calc_distribution(balances):
-    (debitors, creditors) = group_by(compose(signum, second), balances)
-    return distribute(debitors, creditors)
-
-
-def who_pay(x):
-    return x[0].who_pay or x[0]
 
 
 def report(event_group):
@@ -73,43 +37,13 @@ def report(event_group):
     print "\nTotal results with aggregates:"
     print_table(aggregate_balances)
 
-    distribution = calc_distribution(aggregate_balances)
+    distribution = calc_transactions(aggregate_balances)
     print "\nWho pays whom:"
     for payment in distribution:
         print "%s pays %.2f to %s" % (payment[0].name, payment[2], payment[1].name)
 
 
-def distribute(debitors, creditors):
-    def distribute_(result, debitors, creditors):
-        if len(debitors) == 0 or len(creditors) == 0:
-            return result
-
-        debitor = debitors[0]
-        creditor = creditors[0]
-        debitors_ = len(debitors) > 1 and debitors[1:] or []
-        creditors_ = len(creditors) > 1 and creditors[1:] or []
-
-        debt = creditor[1] + debitor[1]
-        left_debitor = []
-        left_creditor = []
-
-        if debt < 0:
-            transaction = (debitor[0], creditor[0], creditor[1])
-            left_debitor = [(debitor[0], debt)]
-        elif debt > 0:
-            transaction = (debitor[0], creditor[0], debitor[1])
-            left_creditor = [(creditor[0], debt)]
-        else:
-            transaction = (debitor[0], creditor[0], debitor[1])
-
-        return distribute_(
-            result + [transaction],
-            left_debitor + debitors_,
-            left_creditor + creditors_
-        )
-
-    return distribute_([], debitors, creditors)
-
+###################### Define persons ######################
 
 igor = Person('Igor')
 den = Person('Den')
