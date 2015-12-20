@@ -24,8 +24,8 @@ class Event(object):
 
 
 class EventsGroup(object):
-    def __init__(self, persons, name=''):
-        self.events = []
+    def __init__(self, persons, events = [], name=''):
+        self.events = events
         self.persons = persons
         self.name = name
 

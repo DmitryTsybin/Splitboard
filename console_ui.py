@@ -11,6 +11,20 @@ class FileReader(object):
     pass
 
 
+def total(event_group):
+    '''
+    :param event_group:
+    :return: combined event from all events from event_group
+    '''
+    return reduce(combine_events, event_group.events, Event([], []))
+
+
+def combine_event_groups(group1, group2):
+    print group1.persons + group2.persons
+    print group1.events + group2.events
+    return EventsGroup(group1.persons + group2.persons, group1.events + group2.events, "%s and %s" % (group1.name, group2.name))
+
+
 def report(event_group):
     def who_pay(x):
         return x[0].who_pay or x[0]
@@ -19,7 +33,7 @@ def report(event_group):
         for row in table:
             print "%s: %.2f" % (row[0].name, row[1])
 
-    results = reduce(combine_events, event_group.events, Event([], []))
+    results = total(event_group)
 
     print
     print "************ Results for %s ************" % event_group.name
@@ -42,13 +56,17 @@ def report(event_group):
     print_table(aggregate_balances)
 
 
-###################### Sheregesh ######################
 igor = Person('Igor')
 den = Person('Den')
 masha = Person('Masha', None, igor)
 dima = Person('Dima')
+anton = Person('Anton')
+slava = Person('Slava')
+andrey = Person('Andrey')
 
-sheregesh = EventsGroup([den, igor, masha, dima], 'Sheregesh')
+###################### Sheregesh ######################
+
+sheregesh = EventsGroup([den, igor, masha, dima], [], 'Sheregesh')
 sheregesh.add_event(Event([(dima, 12000), (igor, 2000)], [dima, igor, masha]))
 sheregesh.add_event(Event([(dima, 3500)], [dima, igor, masha]))
 sheregesh.add_event(Event([(dima, 2471.25)], [dima, igor, masha]))
@@ -78,14 +96,8 @@ sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (masha, 79
 
 
 ###################### Mamay ######################
-igor = Person('Igor')
-masha = Person('Masha', None, igor)
-dima = Person('Dima')
-anton = Person('Anton')
-slava = Person('Slava')
-andrey = Person('Andrey')
 
-mamay = EventsGroup([igor, masha, dima, anton, slava, andrey], 'Mamay')
+mamay = EventsGroup([igor, masha, dima, anton, slava, andrey], [], 'Mamay')
 mamay.add_event(Event([(dima, 860)], [igor], 'Дима заплатил за еду Игоря'))
 mamay.add_event(Event([(dima, 1900)], [igor, dima, anton, andrey, masha], 'Рыба в баню'))
 mamay.add_event(Event([(dima, 750)], [igor, dima, anton, andrey, masha], 'Пиво в баню'))
@@ -97,3 +109,4 @@ mamay.add_event(Event([(slava, 6000)], [igor, dima, andrey, masha], 'Слава 
 ###################### Printing reports ######################
 report(sheregesh)
 report(mamay)
+report(combine_event_groups(sheregesh, mamay))
