@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from models import Person
 from models import Event
 from models import EventsGroup
@@ -10,12 +12,45 @@ class FileReader(object):
     pass
 
 
+def report(event_group):
+
+    def who_pay(x):
+        return x[0].who_pay or x[0]
+
+    def print_table(table):
+        for row in table:
+            print "%s: %.2f" % (row[0].name, row[1])
+
+    results = reduce(combine_events, event_group.events, Event([], []))
+
+    print
+    print "************ Results for %s ************" % event_group.name
+    print "Total amount payed: %.2f" % sum(map(lambda(x): x[1], results.pays))
+    print "Total amount spent: %.2f" % sum(map(lambda(x): x[1], results.share))
+
+    print "\nPayments:"
+    print_table(results.pays)
+
+    print "\nCredits:"
+    print_table(results.share)
+
+
+    balances = combine_payments(results.pays, results.share)
+    print "\nTotal results:"
+    print_table(balances)
+
+    aggregate_balances = combine_payments(balances, [], who_pay)
+    print "\nTotal results with aggregates:"
+    print_table(aggregate_balances)
+
+
+###################### Sheregesh ######################
 igor = Person('Igor')
 den = Person('Den')
 masha = Person('Masha', None, igor)
 dima = Person('Dima')
 
-sheregesh = EventsGroup([den, igor, masha, dima])
+sheregesh = EventsGroup([den, igor, masha, dima], 'Sheregesh')
 sheregesh.add_event(Event([(dima, 12000), (igor, 2000)], [dima, igor, masha]))
 sheregesh.add_event(Event([(dima, 3500)], [dima, igor, masha]))
 sheregesh.add_event(Event([(dima, 2471.25)], [dima, igor, masha]))
@@ -43,22 +78,24 @@ sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (masha, 79
 # sheregesh.add_person(test_user)
 # sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (test_user, 790)]))
 
-sheregesh_results = reduce(combine_events, sheregesh.events, Event([], []))
+
+###################### Mamay ######################
+igor = Person('Igor')
+masha = Person('Masha', None, igor)
+dima = Person('Dima')
+anton = Person('Anton')
+slava = Person('Slava')
+andrey = Person('Andrey')
+
+mamay = EventsGroup([igor, masha, dima, anton, slava, andrey], 'Mamay')
+mamay.add_event(Event([(dima, 860)], [igor], 'Дима заплатил за еду Игоря'))
+mamay.add_event(Event([(dima, 1900)], [igor, dima, anton, andrey, masha], 'Рыба в баню'))
+mamay.add_event(Event([(dima, 750)], [igor, dima, anton, andrey, masha], 'Пиво в баню'))
+mamay.add_event(Event([(anton, 500)], [igor, dima, anton, andrey, masha], 'Пиво и рыба в баню'))
+mamay.add_event(Event([(dima, 1000)], [igor], 'Дима дал Игорю 1000р на карманные расходы'))
+mamay.add_event(Event([(slava, 6000)], [igor, dima, andrey, masha], 'Слава заплатил за наше жильё'))
 
 
-#print "Total amount: %.2f" % sheregesh_results['total_amount']
-print "Total amount payed: %.2f" % sum(map(lambda(x): x[1], sheregesh_results.pays))
-print "Total amount spent: %.2f" % sum(map(lambda(x): x[1], sheregesh_results.share))
-
-
-print "\nPayments:"
-for payment in sheregesh_results.pays:
-    print "%s: %.2f" % (payment[0].name, payment[1])
-
-print "\nCredits:"
-for credit in sheregesh_results.share:
-    print "%s: %.2f" % (credit[0].name, credit[1])
-
-print "\nTotal results:"
-for result in combine_payments(sheregesh_results.pays, sheregesh_results.share):
-    print "%s: %.2f" % (result[0].name, result[1])
+###################### Printing reports ######################
+report(sheregesh)
+report(mamay)

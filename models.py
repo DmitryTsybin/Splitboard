@@ -2,12 +2,13 @@ class Person(object):
     def __init__(self, name, email = None, who_pay = None):
         self.name = name
         self.email = email
-        self.who_pay = who_pay
+        if not who_pay:
+            self.who_pay = self
+        else:
+            self.who_pay = who_pay
 
     def __repr__(self):
         return '<Person %r>' % self.name
-
-
 
 
 class Event(object):
@@ -23,50 +24,16 @@ class Event(object):
 
 
 class EventsGroup(object):
-    def __init__(self, persons):
+    def __init__(self, persons, name=''):
         self.events = []
         self.persons = persons
-        self.total_amount = 0
-        self.payments = {}
-        self.credits = {}
-        self.results = {}
-
-        for person in self.persons:
-            self.payments[person] = 0
-            self.credits[person] = 0
-            self.results[person] = 0
+        self.name = name
 
     def add_event(self, event):
         self.events.append(event)
 
     def add_person(self, person):
         self.persons.append(person)
-        self.payments[person] = 0
-        self.credits[person] = 0
-        self.results[person] = 0
-
-    def calculate_results(self):
-        for event in self.events:
-            for pay in event.pays:
-                self.total_amount += pay[1]
-                self.payments[pay[0]] += pay[1]
-
-            for elem in event.share:
-                print "elem.name: %s" % elem.name
-                self.credits[elem[0]] += elem[-1]
-
-        for person in self.persons:
-            if person.who_pay:
-                self.results[person.who_pay] += self.payments[person] - self.credits[person]
-            else:
-                self.results[person] += self.payments[person] - self.credits[person]
-
-        return {'total_amount': self.total_amount,
-                'payments': self.payments,
-                'credits': self.credits,
-                'results': self.results
-                }
-
 
 def extend_event(event):
     if len(event.share) == 0:
@@ -85,49 +52,48 @@ def extend_event(event):
         for elem in event.share:
             sum += elem[-1]
 
-        if sum == 1:
-            result_share.append((elem[0], -result_payment * elem[-1]))
-        else:
-            result_share.append((elem[0], -elem[-1]))
+        for elem in event.share:
+            if sum == 1:
+                result_share.append((elem[0], -result_payment * elem[-1]))
+            else:
+                result_share.append((elem[0], -elem[1]))
     else:
         print "something went wrong. event.share[0]: %r" % event.share[0]
     return Event(event.pays, result_share, event.description)
 
 
-def group_by(f, l):
+def group_by(p, l):
+    def cmp(x, y):
+        return p(x) < p(y) and -1 or p(x) > p(y) and 1 or p(x) == p(y) and 0
+
     l_ = l[:]
-    l_.sort()
+    l_.sort(cmp)
+
     def r(x, y):
-        if len(x) and f(x[-1][0], y):
+        if len(x) and p(x[-1][0]) == p(y):
             return x[:-1] + [x[-1] + [y]]
         else:
             return x + [[y]]
     return reduce(r, l_, [])
 
-def first_eq(x,y):
-    return x[0] == y[0]
+
+def first(x):
+    return x[0]
+
 
 def second(x):
     return x[1]
 
+
 def sum_amounts(x):
     return (x[0][0], sum(map(second, x)))
 
-def combine_payments(p1, p2):
-    p = p1 + p2
-    return map(sum_amounts, group_by(first_eq, p))
+
+def combine_payments(l1, l2, p = first):
+    l = l1 + l2
+    return map(sum_amounts, group_by(p, l))
+
 
 def combine_events(event1, event2):
     event2 = extend_event(event2)
-    print event1.share
-    print event2.share
-    print '-------------------'
     return Event(combine_payments(event1.pays, event2.pays), combine_payments(event1.share, event2.share))
-
-
-#sheregesh.add_event(Event([(igor, 2080)], [(dima, 720), (igor, 680), (masha, 680)]))
-#sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (masha, 790)]))
-#print combine_events()
-
-
-
