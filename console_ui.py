@@ -3,7 +3,6 @@
 from models import Person
 from models import Event
 from models import EventsGroup
-from models import extend_event
 from models import combine_events
 from models import combine_payments
 
@@ -13,7 +12,6 @@ class FileReader(object):
 
 
 def report(event_group):
-
     def who_pay(x):
         return x[0].who_pay or x[0]
 
