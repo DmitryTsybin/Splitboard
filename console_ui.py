@@ -10,7 +10,6 @@ class FileReader(object):
 
 
 def report(event_group):
-
     def print_table(table):
         for row in table:
             print "%s: %.2f" % (row[0].name, row[1])
@@ -44,7 +43,6 @@ def report(event_group):
 
 
 ###################### Define persons ######################
-
 igor = Person('Igor')
 den = Person('Den')
 masha = Person('Masha', None, igor)
@@ -54,7 +52,6 @@ slava = Person('Slava')
 andrey = Person('Andrey')
 
 ###################### Sheregesh ######################
-
 sheregesh = EventsGroup([den, igor, masha, dima], [], 'Sheregesh')
 sheregesh.add_event(Event([(dima, 12000), (igor, 2000)], [dima, igor, masha]))
 sheregesh.add_event(Event([(dima, 3500)], [dima, igor, masha]))
@@ -75,17 +72,9 @@ sheregesh.add_event(Event([(igor, 400)], [dima, igor, masha, den]))
 sheregesh.add_event(Event([(igor, 570)], [(dima, 570)]))
 sheregesh.add_event(Event([(igor, 982)], [dima, igor, masha]))
 sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (masha, 790)]))
-#sheregesh.add_event( , , {'dima': , 'igor': , 'masha': , 'den': })
-
-
-# Test for add new user during the process
-# test_user = Person('Test user')
-# sheregesh.add_person(test_user)
-# sheregesh.add_event(Event([(masha, 2380)], [(dima, 800), (igor, 790), (test_user, 790)]))
 
 
 ###################### Mamay ######################
-
 mamay = EventsGroup([igor, masha, dima, anton, slava, andrey], [], 'Mamay')
 mamay.add_event(Event([(dima, 860)], [igor], 'Дима заплатил за еду Игоря'))
 mamay.add_event(Event([(dima, 1900)], [igor, dima, anton, andrey, masha], 'Рыба в баню'))
