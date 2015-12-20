@@ -1,7 +1,8 @@
 class Person(object):
-    def __init__(self, name, email = None, who_pay = None):
+    def __init__(self, name, email=None, creditcard=None, who_pay=None):
         self.name = name
         self.email = email
+        self.creditcard = creditcard
         if not who_pay:
             self.who_pay = self
         else:
@@ -160,4 +161,3 @@ def distribute(debitors, creditors):
         )
 
     return distribute_([], debitors, creditors)
-
