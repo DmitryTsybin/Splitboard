@@ -106,8 +106,6 @@ def total(event_group):
 
 
 def combine_event_groups(group1, group2):
-    print group1.persons + group2.persons
-    print group1.events + group2.events
     return EventsGroup(group1.persons + group2.persons, group1.events + group2.events, "%s and %s" % (group1.name, group2.name))
 
 
